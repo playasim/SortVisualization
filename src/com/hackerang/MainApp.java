@@ -2,7 +2,7 @@ package com.hackerang;
 
 import javax.swing.*;
 
-public class MainApp {
+public class MainApp extends  JFrame {
     public static void main(String[] args) {
         JFrame frame = new JFrame();
         GraphPanel panel = new GraphPanel(20, 20);

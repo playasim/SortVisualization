@@ -1,10 +1,15 @@
 package com.hackerang;
 
+import com.hackerang.sort.BubbleSort;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class GraphPanel extends JPanel {
     private int rows;
@@ -23,8 +28,10 @@ public class GraphPanel extends JPanel {
 
     private JTextField textField;
 
-    private Timer timer;
+    private BubbleSort bubbleSort;
 
+    private int[] tempList;
+    
     public GraphPanel(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
@@ -35,7 +42,6 @@ public class GraphPanel extends JPanel {
         initializeTextField();
         initializeButtion();
 
-        timer = new Timer(100, sortActionListener);
     }
 
     private void initializeLables() {
@@ -69,7 +75,12 @@ public class GraphPanel extends JPanel {
         startSorting.setBounds(blockWidth * cols / 5, blockHeight * rows + 70, 130, 30);
         startSorting.setHorizontalAlignment(SwingConstants.LEFT);
         this.add(startSorting);
-        startSorting.addActionListener(sortActionListener);
+        startSorting.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bubbleSortTimer.start();
+            }
+        });
     }
 
     private void initializeTextField() {
@@ -84,21 +95,60 @@ public class GraphPanel extends JPanel {
         if ("".equals(textField.getText()) || textField.getText() == null) {
             return;
         }
+
         String[] arrays = textField.getText().split(",");
+        tempList = new int[arrays.length];
         for (int i = 0; i < arrays.length; i++) {
             int value = Integer.valueOf(arrays[i]);
-            for (int j = 0; j < value; j++) {
-                labels[cols - 1 - j][i].setBackground(Color.ORANGE);
-                labels[cols - 1 - j][i].repaint();
+            tempList[i] = value;
+            for (int j = 0; j < rows; j++) {
+                if (j >= rows - tempList[i]) {
+                    labels[j][i].setBackground(Color.ORANGE);
+                } else {
+                    labels[j][i].setBackground(Color.WHITE);
+
+                }
             }
         }
+
+        bubbleSort = new BubbleSort(tempList);
+        bubbleSort.setSorted(false);
+
     }
 
-    ActionListener sortActionListener = e -> {
-        timer.start();
-        System.out.println("Processing..............");
+    private final Timer bubbleSortTimer = new Timer(300, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (bubbleSort.isSorted()) {
+                System.out.println("Quit timer mode");
+                bubbleSortTimer.stop();
+                return;
 
-    };
+            }
+            System.out.println("Timer start...");
+            bubbleSort.startSort();
+            tempList = bubbleSort.getTempList();
+            bubbleSort.startSort();
+            System.out.println("tempList :" + Arrays.toString(tempList));
+
+            startPaint();
+        }
+
+        private void startPaint() {
+            System.out.println("Start painting...");
+            for (int i = 0; i < tempList.length; i++) {
+                for (int j = 0; j < rows; j++) {
+                    if (j >= rows - tempList[i]) {
+                        labels[j][i].setBackground(Color.ORANGE);
+                    } else {
+                        labels[j][i].setBackground(Color.WHITE);
+
+                    }
+                }
+            }
+        }
+    });
+
 
 
 
